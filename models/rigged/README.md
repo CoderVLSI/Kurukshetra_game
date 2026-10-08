@@ -1,6 +1,7 @@
 # Rigged character models
 
-Seven Chapter 1 characters re-exported with a skeleton and a 10x lower triangle count.
+Seven Chapter 1 characters re-exported with a skeleton, a 10x lower triangle count, and
+looping `idle` and `walk` animations.
 Drop each file over the same-named file in `assets/models/` of the Godot project
 (Godot re-imports automatically).
 
@@ -20,9 +21,24 @@ Drop each file over the same-named file in `assets/models/` of the Godot project
 - Position, scale and orientation are unchanged: bounding boxes match the originals within
   0.001 m, so the commander placements in `chapter.gd` still line up.
 - Textures and material slots are unchanged (2048x2048 albedo, roughness/metallic, normal).
-- No animations are included. These are rigged, not yet animated.
+- Each file contains an `AnimationPlayer` with two clips, both set to loop on import:
+  `idle` (4.0 s: breathing, slow weight shift, tiny head drift) and
+  `walk` (1.2 s per full cycle, in place, no root motion).
+- Play them in Godot like this:
+
+  ```gdscript
+  var ap := model.find_children("*", "AnimationPlayer", true, false)[0] as AnimationPlayer
+  ap.play("idle")
+  ap.play("walk")
+  ap.speed_scale = move_speed / 1.3   # the walk is authored for ~1.3 units/s at scale 1
+  ```
+- Walk numbers (measured): planted-foot ground speed averages 1.29 units/s (peak 1.69,
+  so there is a little foot skate in mid-stance), swing-foot clearance 0.125 units.
+- The clips are written against the shared bone names, so they play on any model with the
+  same skeleton. `tools/blender/locomotion.py` holds the amplitudes if you want to tune them.
 - Verified in Godot 4.5.1: imports cleanly, boots, gallery and palace scene render
-  (see `docs/rigged-characters-ingame.png`).
+  (see `docs/rigged-characters-ingame.png`), and the walk cycle was captured in the game
+  engine (`docs/walk-cycle-ingame.png`: Duryodhana, Vidura, Bhima).
 
 Not done: Dhritarashtra and Sanjaya (seated, Dhritarashtra is fused with his throne), and
 the generic ArmyArcher / ArmyShield soldiers.
@@ -30,18 +46,10 @@ the generic ArmyArcher / ArmyShield soldiers.
 Project check to update: `new_models_check.gd` asserts exactly 500,000 triangles per
 character and will now fail by design.
 
-## Per-character leg settings used
+## Rebuilding
 
-Leg x-offsets (metres, native frame) were measured from the feet in each bone-fit overlay:
-
-| Model | thigh | calf | foot/ball |
-|---|---|---|---|
-| Yudhishthira | 0.116 | 0.168 | 0.21 |
-| Bhima | 0.149 | 0.216 | 0.27 |
-| Sahadeva | 0.116 | 0.168 | 0.21 |
-| Nakula | 0.110 | 0.160 | 0.20 |
-| Dronacharya | 0.121 | 0.176 | 0.22 |
-| Vidura | 0.094 | 0.136 | 0.17 |
-| Duryodhana | 0.150 | 0.230 | 0.285 |
-
-Rebuild one: see `tools/blender/rig_character.py`. Decimate ratio was 0.1 for all.
+Per-character settings (leg offsets measured from each model's feet) live in
+`tools/blender/characters.json`. Rebuild everything from the original 500k-triangle GLBs with
+`tools/blender/build_all.sh <originals dir> <output dir> [jobs] [Name ...]` (about 6-7 minutes
+for all seven on 4 cores). Single character: see the usage notes at the top of
+`tools/blender/rig_character.py` (add `"animate":1` to its options to bake in the clips).

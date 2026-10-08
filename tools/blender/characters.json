@@ -1,0 +1,12 @@
+{
+  "ratio": 0.1,
+  "characters": {
+    "Yudhishthira": {"x": {"thigh": 0.116, "calf": 0.168, "foot": 0.21,  "ball": 0.21}},
+    "Bhima":        {"x": {"thigh": 0.149, "calf": 0.216, "foot": 0.27,  "ball": 0.27}},
+    "Sahadeva":     {"x": {"thigh": 0.116, "calf": 0.168, "foot": 0.21,  "ball": 0.21}},
+    "Nakula":       {"x": {"thigh": 0.110, "calf": 0.160, "foot": 0.20,  "ball": 0.20}},
+    "Dronacharya":  {"x": {"thigh": 0.121, "calf": 0.176, "foot": 0.22,  "ball": 0.22}},
+    "Vidura":       {"x": {"thigh": 0.094, "calf": 0.136, "foot": 0.17,  "ball": 0.17}},
+    "Duryodhana":   {"x": {"thigh": 0.150, "calf": 0.230, "foot": 0.285, "ball": 0.285}}
+  }
+}

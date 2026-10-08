@@ -112,7 +112,17 @@ rlib.setup_render(520,780,16); rlib.shot(rdir+'/%s_pose.png'%name,(0,0,(zmin+zma
 rlib.shot(rdir+'/%s_pose_side.png'%name,(0,0,(zmin+zmax)/2),6,60,ortho_scale=H*1.12)
 # reset pose and export
 bpy.context.view_layer.objects.active=arm; bpy.ops.object.mode_set(mode='POSE'); bpy.ops.pose.select_all(action='SELECT'); bpy.ops.pose.transforms_clear(); bpy.ops.object.mode_set(mode='OBJECT')
+if opts.get('animate'):
+    import locomotion
+    locomotion.build(arm,H)
+    avg,peak,clear=locomotion.foot_report(arm)
+    print("WALK stance speed avg %.2f peak %.2f m/s, swing clearance %.3f m"%(avg,peak,clear))
+    for i,f in enumerate(range(0,locomotion.CLIPS['walk'],locomotion.CLIPS['walk']//8)):
+        bpy.context.scene.frame_set(f)
+        rlib.shot(rdir+'/%s_walk_%d.png'%(name,i),(0,0,(zmin+zmax)/2),6,90,ortho_scale=H*1.12)
+    arm.animation_data.action=bpy.data.actions['walk'+locomotion.LOOP_SUFFIX]; bpy.context.scene.frame_set(0)
 for x in list(bpy.data.objects):
     if x.type not in ('MESH','ARMATURE'): bpy.data.objects.remove(x)
-bpy.ops.export_scene.gltf(filepath=out_glb, export_format='GLB', export_apply=False, export_skins=True, export_animations=False, export_yup=True)
+kw=dict(export_animations=True,export_animation_mode='ACTIONS',export_force_sampling=True,export_optimize_animation_size=False) if opts.get('animate') else dict(export_animations=False)
+bpy.ops.export_scene.gltf(filepath=out_glb, export_format='GLB', export_apply=False, export_skins=True, export_yup=True, **kw)
 print("EXPORTED",out_glb)
